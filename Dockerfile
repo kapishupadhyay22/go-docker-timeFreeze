@@ -13,13 +13,13 @@ COPY *.go ./
 
 
 
-COPY go_freeze_time_arm64 /lib/keploy/go_freeze_time_arm64
+COPY go_freeze_time_amd64 /lib/keploy/go_freeze_time_amd64
 
 # Set suitable permissions
-RUN chmod +x /lib/keploy/go_freeze_time_arm64
+RUN chmod +x /lib/keploy/go_freeze_time_amd64
 
 # Run the binary to set up the time freezing environment
-RUN /lib/keploy/go_freeze_time_arm64
+RUN /lib/keploy/go_freeze_time_amd64
 
 
 # Build the Go application into a static binary
