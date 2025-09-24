@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"encoding/json" 
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -18,7 +19,6 @@ type Claims struct {
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Login attempt at :", time.Now())
-	// Token expires in 2 minute.
 	expirationTime := time.Now().Add(2 * time.Minute)
 
 	claims := &Claims{
@@ -35,14 +35,21 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	response := map[string]string{"token": tokenString}
+	jsonResponse, err := json.Marshal(response)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(tokenString))
+	w.Write(jsonResponse)
 }
 
 func insecureExpiryOnlyMiddleware(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("time now :" , time.Now().Unix())
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
 			http.Error(w, "Authorization header required", http.StatusUnauthorized)
