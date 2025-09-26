@@ -57,6 +57,14 @@ keploy test -c "<appCmd>" --freeze-time
 docker build -t go-jwt-app-normal .
 ```
 
+## command to run keploy record
+
+Use the `keploy record` command to capture API calls and generate test cases. While this is running, run the `./test_time_endpoint.sh` script to generate tests.
+
+```
+keploy record -c "docker run --name my-app --network keploy-network -p 8080:8080 go-jwt-app-normal" --container-name=my-app
+```
+
 ## command to run the keploy tests
 
 ```
