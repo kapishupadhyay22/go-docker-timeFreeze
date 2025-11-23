@@ -64,7 +64,7 @@ func insecureExpiryOnlyMiddleware(next http.Handler) http.Handler {
 			http.Error(w, "Malformed token", http.StatusUnauthorized)
 			return
 		}
-
+		fmt.Println("expires at :", claims.ExpiresAt.Time.Unix())
 		if claims.ExpiresAt.Time.Before(time.Now()) {
 			http.Error(w, fmt.Sprintf("Token is expired. Current timestamp: %d", time.Now().Unix()), http.StatusUnauthorized)
 			return
