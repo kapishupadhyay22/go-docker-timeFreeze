@@ -60,7 +60,7 @@ func insecureExpiryOnlyMiddleware(next http.Handler) http.Handler {
 		claims := &Claims{}
 
 		_, _, err := new(jwt.Parser).ParseUnverified(tokenString, claims)
-		fmt.Println("here is a log of verification")
+		fmt.Println("here is a log of verification :", tokenString)
 		if err != nil {
 			http.Error(w, "Malformed token", http.StatusUnauthorized)
 			return
