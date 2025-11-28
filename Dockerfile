@@ -1,5 +1,6 @@
 # Stage 1: The 'builder' stage to compile the Go application
 FROM golang:1.24-alpine AS builder
+RUN apk add --no-cache build-base  # provides gcc, make, libc-dev, etc.
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -11,15 +12,20 @@ RUN go mod download
 # Copy the rest of the application source code
 COPY *.go ./
 
-ADD https://keploy-enterprise.s3.us-west-2.amazonaws.com/releases/latest/assets/install-time-freeze.sh /usr/local/bin/
 
-RUN chmod +x /usr/local/bin/install-time-freeze.sh && \
-    /usr/local/bin/install-time-freeze.sh
-ENV LD_PRELOAD=/lib/keploy/freeze_time_current.so GOFLAGS="-tags=faketime"
+
+COPY go_freeze_time_amd64 /lib/keploy/go_freeze_time_amd64
+
+# Set suitable permissions
+RUN chmod +x /lib/keploy/go_freeze_time_amd64
+
+# Run the binary to set up the time freezing environment
+RUN /lib/keploy/go_freeze_time_amd64
+
 
 # Build the Go application into a static binary
 # CGO_ENABLED=0 is important for creating a static binary that can run in a minimal image
-RUN CGO_ENABLED=0 GOOS=linux go build -o /main .
+RUN CGO_ENABLED=1 GOOS=linux go build -tags=faketime -o /main .
 
 # Stage 2: The 'final' stage to create the minimal production image
 FROM alpine:latest
